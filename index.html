@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dis Oui — Invitation interactive</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #5c1428;
+      --primary-hover: #450e1d;
+      --text-dark: #241c1e;
+      --text-muted: #7d6f72;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      /* Intégration de ton image de fond avec effet de couverture */
+      background: linear-gradient(rgba(0,0,0,0.15), rgba(0,0,0,0.15)), url('image.png') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    /* En-tête / Logo minimaliste */
+    .brand-header {
+      text-align: center;
+      margin-bottom: 22px;
+    }
+    .brand-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* Carte principale semi-transparente pour faire ressortir sur le fond */
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid #ebdccb;
+      border-radius: 16px;
+      padding: 38px 28px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      position: relative;
+    }
+
+    .subtitle-tag {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    h1.title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 30px;
+      line-height: 1.25;
+      color: var(--primary-color);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    p.description {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      color: var(--text-muted);
+      font-style: italic;
+      margin-bottom: 24px;
+    }
+
+    /* Formulaires */
+    .form-group {
+      text-align: left;
+      margin-bottom: 15px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    .form-control {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid #ebdccb;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      background: #fcfaf7;
+      color: var(--text-dark);
+      outline: none;
+      transition: all 0.2s;
+    }
+    .form-control:focus {
+      border-color: var(--primary-color);
+      background: #ffffff;
+      box-shadow: 0 0 0 3px rgba(92, 20, 40, 0.06);
+    }
+
+    /* Boutons généraux */
+    .btn-primary {
+      width: 100%;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border: none;
+      padding: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      margin-top: 8px;
+    }
+    .btn-primary:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .link-result {
+      display: none;
+      margin-top: 20px;
+      background: #fcfaf7;
+      padding: 16px;
+      border-radius: 10px;
+      border: 1px dashed #ebdccb;
+      text-align: left;
+    }
+
+    /* Enveloppe interactive */
+    .envelope-box {
+      cursor: pointer;
+      padding: 25px 0 10px 0;
+    }
+    .envelope {
+      width: 170px;
+      height: 115px;
+      background: #ebdccb;
+      margin: 0 auto 18px auto;
+      position: relative;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+      border: 1px solid #dccbb7;
+      transition: transform 0.25s ease;
+    }
+    .envelope:hover {
+      transform: translateY(-4px);
+    }
+    .envelope-seal {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 15px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.18);
+    }
+
+    /* ==========================================
+       BOUTONS OUI (ROUGE) ET NON (OR / DORÉ) DISTINCTS
+       ========================================== */
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      position: relative;
+      min-height: 65px;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    /* Bouton OUI : Rouge chic et profond */
+    .btn-yes {
+      background: linear-gradient(135deg, #7a1b36, #5c1428);
+      color: #ffffff;
+      border: none;
+      padding: 13px 40px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 15px rgba(92, 20, 40, 0.25);
+      transition: transform 0.2s;
+    }
+    .btn-yes:hover {
+      transform: scale(1.03);
+    }
+
+    /* Bouton NON : Doré/Or distinct et élégant (fuyant) */
+    .btn-no {
+      background: linear-gradient(135deg, #d4af37, #aa8c2c);
+      color: #ffffff;
+      border: 1px solid #b39330;
+      padding: 13px 30px;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      letter-spacing: 1px;
+      position: absolute;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+      transition: all 0.12s ease-out;
+    }
+
+    .funny-text {
+      margin-top: 15px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      color: var(--text-muted);
+      font-style: italic;
+      min-height: 22px;
+    }
+
+    /* Boîte de Plan */
+    .plan-box {
+      background: #fcfaf7;
+      border: 1px solid #ebdccb;
+      border-radius: 10px;
+      padding: 22px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    /* Gestion des écrans */
+    .view-section {
+      display: none;
+    }
+    .view-section.active {
+      display: block;
+      animation: fadeIn 0.35s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="brand-header">
+      <div class="brand-name">Dis Oui</div>
+    </div>
+
+    <div id="creator-view" class="view-section card active">
+      <div class="subtitle-tag">Invitations qu'on ne refuse pas</div>
+      <h1 class="title">Demande-lui.<br>Elle ne pourra pas dire non.</h1>
+      <p class="description">Crée ton invitation animée en 1 minute. Le bouton « Non » s'enfuit.</p>
+
+      <form id="inviteForm" onsubmit="generateLink(event)">
+        <div class="form-group">
+          <label>Prénom du destinataire</label>
+          <input type="text" id="inputTo" class="form-control" placeholder="Ex: Prunelle" required>
+        </div>
+        <div class="form-group">
+          <label>Que voulez-vous faire ?</label>
+          <input type="text" id="inputActivity" class="form-control" placeholder="Ex: Manger, Boire un verre..." required>
+        </div>
+        <div class="form-group">
+          <label>Lieu / Adresse</label>
+          <input type="text" id="inputPlace" class="form-control" placeholder="Ex: Yopougon académie" required>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="text" id="inputDate" class="form-control" placeholder="Ex: Mardi 1 septembre" required>
+        </div>
+        <div class="form-group">
+          <label>Heure</label>
+          <input type="text" id="inputTime" class="form-control" placeholder="Ex: 11:00" required>
+        </div>
+        <div class="form-group">
+          <label>Ton numéro WhatsApp (pour recevoir la réponse)</label>
+          <input type="tel" id="inputPhone" class="form-control" placeholder="Ex: 2250700000000">
+        </div>
+        <div class="form-group">
+          <label>Ton petit mot sur la carte</label>
+          <input type="text" id="inputNote" class="form-control" placeholder="Ex: Habille-toi bien, je passe te chercher.">
+        </div>
+
+        <button type="submit" class="btn-primary">Créer mon invitation gratuite</button>
+      </form>
+
+      <div id="linkResult" class="link-result">
+        <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary-color); margin-bottom: 8px; font-weight: 700;">✨ Ton invitation est prête !</p>
+        <input type="text" id="shareUrl" class="form-control" readonly style="margin-bottom: 8px; font-size: 11px; background: #fff;">
+        <button class="btn-primary" onclick="copyLink()">Copier le lien</button>
+        <button class="btn-primary" style="background: transparent; border: 1px solid #ebdccb; color: var(--text-dark);" onclick="testInvitation()">Voir l'invitation</button>
+      </div>
+    </div>
+
+    <div id="envelope-view" class="view-section card">
+      <div class="envelope-box" onclick="openEnvelope()">
+        <div class="envelope">
+          <div class="envelope-seal">♥</div>
+        </div>
+        <div class="subtitle-tag" style="margin-bottom: 0;">TOUCHE LA LETTRE</div>
+      </div>
+    </div>
+
+    <div id="question-view" class="view-section card">
+      <div class="subtitle-tag" id="recipientTag">POUR TOI</div>
+      <h1 class="title">Ça te dit un date avec moi ?</h1>
+      <p class="description">(dire non ne sert à rien, mais tu peux essayer)</p>
+
+      <div class="btn-group" id="btnContainer">
+        <button class="btn-yes" onclick="clickYes()">Oui</button>
+        <button class="btn-no" id="noBtn" onmouseover="dodgeNoButton()" onclick="dodgeNoButton()">Non</button>
+      </div>
+
+      <div class="funny-text" id="funnyText"></div>
+    </div>
+
+    <div id="plan-view" class="view-section card">
+      <div class="subtitle-tag">PARFAIT</div>
+      <h1 class="title">Voilà le plan</h1>
+      
+      <div class="plan-box">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 24px; color: var(--primary-color); font-weight: 600; margin-bottom: 4px;" id="displayActivity">Manger</div>
+        <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 14px;" id="displayPlace">Yopougon académie</div>
+        <div class="subtitle-tag" style="margin-bottom: 6px;" id="displayDateTime">MARDI 1 SEPTEMBRE — 11:00</div>
+        <div style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: var(--text-dark); margin-top: 10px;" id="displayNote"></div>
+      </div>
+
+      <div class="form-group">
+        <label>Un mot pour moi (facultatif)</label>
+        <input type="text" id="replyNote" class="form-control" placeholder="...">
+      </div>
+
+      <button class="btn-primary" onclick="confirmFinal()">CONFIRMER</button>
+    </div>
+
+    <div id="final-view" class="view-section card">
+      <div style="font-size: 32px; color: var(--primary-color); margin-bottom: 8px;">♥</div>
+      <div class="subtitle-tag">C'EST NOTÉ</div>
+      <h1 class="title">C'est un rendez-vous !</h1>
+      <p class="description" style="margin-top: 8px;">J'ai déjà hâte d'y être.</p>
+    </div>
+
+  </div>
+
+  <script>
+    const funnyMessages = [
+      "Tu es sûr·e...",
+      "Ça ne sert à rien de dire non...",
+      "Le bouton est fatigué, laisse-le tranquille.",
+      "Il s'enfuit. Comme tes excuses.",
+      "Sérieusement. Clique sur Oui."
+    ];
+    let msgIndex = 0;
+
+    let inviteData = {
+      to: "PRUNELLE",
+      activity: "Manger",
+      place: "Yopougon académie",
+      date: "Mardi 1 septembre",
+      time: "11:00",
+      phone: "",
+      note: "Habille-toi bien, je passe te chercher."
+    };
+
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('to')) {
+        inviteData.to = params.get('to');
+        inviteData.activity = params.get('act') || inviteData.activity;
+        inviteData.place = params.get('place') || inviteData.place;
+        inviteData.date = params.get('date') || inviteData.date;
+        inviteData.time = params.get('time') || inviteData.time;
+        inviteData.phone = params.get('phone') || '';
+        inviteData.note = params.get('note') || '';
+
+        switchView('envelope-view');
+      }
+    };
+
+    function switchView(viewId) {
+      document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+      document.getElementById(viewId).classList.add('active');
+    }
+
+    function generateLink(e) {
+      e.preventDefault();
+      const to = document.getElementById('inputTo').value.trim();
+      const activity = document.getElementById('inputActivity').value.trim();
+      const place = document.getElementById('inputPlace').value.trim();
+      const date = document.getElementById('inputDate').value.trim();
+      const time = document.getElementById('inputTime').value.trim();
+      const phone = document.getElementById('inputPhone').value.trim();
+      const note = document.getElementById('inputNote').value.trim();
+
+      const baseUrl = window.location.href.split('?')[0];
+      const shareUrl = `${baseUrl}?to=${encodeURIComponent(to)}&act=${encodeURIComponent(activity)}&place=${encodeURIComponent(place)}&date=${encodeURIComponent(date)}&time=${encodeURIComponent(time)}&phone=${encodeURIComponent(phone)}&note=${encodeURIComponent(note)}`;
+
+      document.getElementById('shareUrl').value = shareUrl;
+      document.getElementById('linkResult').style.display = 'block';
+
+      inviteData = { to, activity, place, date, time, phone, note };
+    }
+
+    function copyLink() {
+      const urlInput = document.getElementById('shareUrl');
+      urlInput.select();
+      document.execCommand('copy');
+      alert('Lien copié ! Tu peux maintenant l\'envoyer.');
+    }
+
+    function testInvitation() {
+      setupInvitationViews();
+      switchView('envelope-view');
+    }
+
+    function setupInvitationViews() {
+      document.getElementById('recipientTag').innerText = `POUR TOI, ${inviteData.to.toUpperCase()} ❤️`;
+      document.getElementById('displayActivity').innerText = inviteData.activity;
+      document.getElementById('displayPlace').innerText = inviteData.place;
+      document.getElementById('displayDateTime').innerText = `${inviteData.date.toUpperCase()} — ${inviteData.time}`;
+      document.getElementById('displayNote').innerText = inviteData.note ? `« ${inviteData.note} »` : '';
+    }
+
+    function openEnvelope() {
+      setupInvitationViews();
+      switchView('question-view');
+    }
+
+    function dodgeNoButton() {
+      const btn = document.getElementById('noBtn');
+      const container = document.getElementById('btnContainer');
+
+      const maxMoveX = container.clientWidth / 2 - 30;
+      const randomX = (Math.random() * maxMoveX * 2) - maxMoveX;
+      const randomY = (Math.random() * 60) - 30;
+
+      btn.style.transform = `translate(${randomX}px, ${randomY}px)`;
+      document.getElementById('funnyText').innerText = funnyMessages[msgIndex % funnyMessages.length];
+      msgIndex++;
+    }
+
+    function clickYes() {
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#5c1428', '#d4af37', '#ffffff']
+      });
+      switchView('plan-view');
+    }
+
+    function confirmFinal() {
+      confetti({
+        particleCount: 100,
+        spread: 90,
+        origin: { y: 0.6 },
+        colors: ['#5c1428', '#d4af37', '#ffffff']
+      });
+
+      const userReply = document.getElementById('replyNote').value.trim();
+
+      if (inviteData.phone) {
+        let text = `J'ai accepté ton invitation ! ❤️\n\n📌 Plan : ${inviteData.activity} à ${inviteData.place} (${inviteData.date} à ${inviteData.time}).`;
+        if (userReply) {
+          text += `\n💬 Mon mot : ${userReply}`;
+        }
+        const waUrl = `https://wa.me/${inviteData.phone}?text=${encodeURIComponent(text)}`;
+        window.open(waUrl, '_blank');
+      }
+
+      switchView('final-view');
+    }
+  </script>
+</body>
+</html>
